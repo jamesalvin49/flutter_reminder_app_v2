@@ -3,20 +3,20 @@ export 'notification_providers.dart' show isarProvider;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:isar/isar.dart';
+import 'package:reminder_app_v2/core/app_initializer.dart';
 import 'package:reminder_app_v2/data/managers/local_notification_manager.dart';
 import 'package:reminder_app_v2/data/managers/simplified_notification_manager.dart';
-import 'package:reminder_app_v2/data/models/easter_date_calculator.dart';
-import 'package:reminder_app_v2/data/models/notification_settings_model.dart';
 import 'package:reminder_app_v2/data/repositories/notification_repository.dart';
 import 'package:reminder_app_v2/data/services/notification_service.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:reminder_app_v2/utils/app_config.dart';
+
+
+final appInitializerProvider = Provider<AppInitializer>((ref) {
+  return AppInitializer();
+});
 
 final isarProvider = FutureProvider<Isar>((ref) async {
-  // Initialize and return your Isar instance
-  final dir = await getApplicationDocumentsDirectory();
-  return Isar.open([NotificationSettingModelSchema, EasterDateCalculatorSchema],
-      directory: dir.path, name: AppConfig.databaseName, inspector: true);
+  final appInitializer = ref.watch(appInitializerProvider);
+  return await appInitializer.getIsarInstance();
 });
 
 final notificationRepositoryProvider = Provider<NotificationRepository>((ref) {

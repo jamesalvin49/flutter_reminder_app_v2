@@ -18,61 +18,7 @@ class LocalNotificationManager {
 
   /// Initializes the local notification manager.
   Future<void> init() async {
-    try {
-      await AwesomeNotifications().initialize(
-        'resource://drawable/res_notification_app_icon', // App icon
-        [
-          NotificationChannel(
-            channelKey: AppConfig.oneTimeChannel,
-            channelName: AppConfig.oneTimeChannelName,
-            channelDescription: AppConfig.oneTimeChannelDescription,
-            defaultColor: Color(0xFF9D50DD),
-            ledColor: Colors.white,
-          ),
-          NotificationChannel(
-            channelKey: dailyReminderChannel,
-            channelName: 'Daily Reminders',
-            channelDescription: 'Channel for daily reminder notifications',
-            defaultColor: Color(0xFF9D50DD),
-            ledColor: Colors.white,
-          ),
-          NotificationChannel(
-            channelKey: weeklyReminderChannel,
-            channelName: 'Weekly Reminders',
-            channelDescription: 'Channel for weekly reminder notifications',
-            defaultColor: Color(0xFF9D50DD),
-            ledColor: Colors.white,
-          ),
-          NotificationChannel(
-            channelKey: monthlyReminderChannel,
-            channelName: 'Monthly Reminders',
-            channelDescription: 'Channel for monthly reminder notifications',
-            defaultColor: Color(0xFF9D50DD),
-            ledColor: Colors.white,
-          ),
-          NotificationChannel(
-            channelKey: yearlyReminderChannel,
-            channelName: 'Yearly Reminders',
-            channelDescription: 'Channel for yearly reminder notifications',
-            defaultColor: Color(0xFF9D50DD),
-            ledColor: Colors.white,
-          ),
-          NotificationChannel(
-            channelKey: easterChannel,
-            channelName: 'Easter Notifications',
-            channelDescription: 'Channel for Easter-related notifications',
-            defaultColor: Color(0xFF9D50DD),
-            ledColor: Colors.white,
-          ),
-        ],
-        debug: true,
-      );
-
-      _logger.info('LocalNotificationManager initialized successfully');
-    } catch (e) {
-      _logger.severe('Error initializing LocalNotificationManager', e);
-      throw NotificationException('Failed to initialize notifications: ${e.toString()}');
-    }
+    
   }
 
   /// Requests notification permissions from the user.

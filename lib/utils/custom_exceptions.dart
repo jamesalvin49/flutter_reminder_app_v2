@@ -45,3 +45,12 @@ class NotifierException implements Exception {
   @override
   String toString() => 'Notifier: $message';
 }
+
+class AppInitializerException implements Exception {
+  final String message;
+
+  AppInitializerException(this.message);
+
+  @override
+  String toString() => 'Notifier: $message';
+}
