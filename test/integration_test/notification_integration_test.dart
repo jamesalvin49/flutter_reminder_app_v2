@@ -53,7 +53,7 @@ void main() {
     );
 
     // Initialize services
-    await initializeServices();
+    //await initializeServices();
 
     // Override the isarProvider with our test instance
     final testIsarProvider = FutureProvider<Isar>((ref) async => isar);

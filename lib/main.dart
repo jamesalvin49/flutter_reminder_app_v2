@@ -1,5 +1,5 @@
 // Export these for use in integration tests
-export 'main.dart' show initializeServices, MyApp;
+//export 'main.dart' show initializeServices, MyApp;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

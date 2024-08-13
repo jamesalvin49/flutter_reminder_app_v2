@@ -8,19 +8,6 @@ import 'package:reminder_app_v2/utils/custom_exceptions.dart';
 class LocalNotificationManager {
   final Logger _logger = Logger('LocalNotificationManager');
 
-  // Notification channel keys
-  static const String oneTimeChannel = 'one_time_channel';
-  static const String dailyReminderChannel = 'daily_reminder_channel';
-  static const String weeklyReminderChannel = 'weekly_reminder_channel';
-  static const String monthlyReminderChannel = 'monthly_reminder_channel';
-  static const String yearlyReminderChannel = 'yearly_reminder_channel';
-  static const String easterChannel = 'easter_channel';
-
-  /// Initializes the local notification manager.
-  Future<void> init() async {
-    
-  }
-
   /// Requests notification permissions from the user.
  Future<bool> requestPermissions() async {
     try {
@@ -48,7 +35,7 @@ class LocalNotificationManager {
       await AwesomeNotifications().createNotification(
         content: NotificationContent(
           id: id,
-          channelKey: oneTimeChannel,
+          channelKey: AppConfig.oneTimeChannel,
           title: title,
           body: body,
           payload: payload != null ? {'data': payload} : null,
@@ -74,7 +61,7 @@ class LocalNotificationManager {
       await AwesomeNotifications().createNotification(
         content: NotificationContent(
           id: id,
-          channelKey: dailyReminderChannel,
+          channelKey: AppConfig.dailyReminderChannel,
           title: title,
           body: body,
           payload: payload != null ? {'data': payload} : null,
@@ -106,7 +93,7 @@ class LocalNotificationManager {
         await AwesomeNotifications().createNotification(
           content: NotificationContent(
             id: id + weekday, // Unique ID for each day
-            channelKey: weeklyReminderChannel,
+            channelKey: AppConfig.weeklyReminderChannel,
             title: title,
             body: body,
             payload: payload != null ? {'data': payload} : null,
@@ -139,7 +126,7 @@ class LocalNotificationManager {
       await AwesomeNotifications().createNotification(
         content: NotificationContent(
           id: id,
-          channelKey: monthlyReminderChannel,
+          channelKey: AppConfig.monthlyReminderChannel,
           title: title,
           body: body,
           payload: payload != null ? {'data': payload} : null,
@@ -170,7 +157,7 @@ class LocalNotificationManager {
       await AwesomeNotifications().createNotification(
         content: NotificationContent(
           id: id,
-          channelKey: yearlyReminderChannel,
+          channelKey: AppConfig.yearlyReminderChannel,
           title: title,
           body: body,
           payload: payload != null ? {'data': payload} : null,
@@ -204,7 +191,7 @@ class LocalNotificationManager {
       await AwesomeNotifications().createNotification(
         content: NotificationContent(
           id: id,
-          channelKey: easterChannel,
+          channelKey: AppConfig.easterChannel,
           title: title,
           body: body,
           payload: payload != null ? {'data': payload} : null,

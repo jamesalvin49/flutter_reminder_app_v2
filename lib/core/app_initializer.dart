@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:isar/isar.dart';
 import 'package:logging/logging.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:reminder_app_v2/data/managers/easter_date_manager.dart';
 import 'package:reminder_app_v2/data/managers/notification_controller.dart';
 import 'package:reminder_app_v2/data/models/easter_date_calculator.dart';
 import 'package:reminder_app_v2/data/models/notification_settings_model.dart';
@@ -22,7 +23,7 @@ class AppInitializer {
 
   Future<void> initialize() async {
     await initializeDatabase();
-    await seedDatabase();
+    await initializeEasterDates();
     await initializeNotifications();
   }
 
@@ -41,16 +42,15 @@ class AppInitializer {
       name: AppConfig.databaseName,
       inspector: true,
     );
+     _logger.info('Database initialized');
   }
 
-  Future<void> seedDatabase() async {
-    // Implement your database seeding logic here
-    // Example:
-    // final isar = /* get your Isar instance */;
-    // await isar.writeTxn(() async {
-    //   await isar.myCollection.putAll([/* your initial data */]);
-    // });
+Future<void> initializeEasterDates() async {
+    final easterDateManager = EasterDateManager(_isarInstance!);
+    await easterDateManager.initializeEasterDates();
+     _logger.info('Easter dates initialized');
   }
+
 
   Future<void> initializeNotifications() async {
     try {
