@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:reminder_app_v2/core/app_initializer.dart';
 import 'package:reminder_app_v2/data/managers/notification_controller.dart';
+import 'package:reminder_app_v2/screens/option_1/serring_screen_option_1.dart';
 
 
 
@@ -31,7 +32,7 @@ class MyApp extends ConsumerWidget {
     return MaterialApp(
       title: 'Stations of the Cross',
       theme: ThemeData(primarySwatch: Colors.purple),
-      home: const Scaffold(),
+      home: const SettingsScreenOption1(),
       navigatorKey: NotificationController.navigatorKey,
       // Add more routes or use a router for additional screens
     );
