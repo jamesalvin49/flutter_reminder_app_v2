@@ -35,22 +35,23 @@ class AppInitializer {
   }
 
   Future<void> initializeDatabase() async {
-    final dir = await getApplicationDocumentsDirectory();
-    _isarInstance = await Isar.open(
-      [NotificationSettingModelSchema, EasterDateCalculatorSchema],
-      directory: dir.path,
-      name: AppConfig.databaseName,
-      inspector: true,
-    );
-     _logger.info('Database initialized');
+    if (_isarInstance == null) {
+      final dir = await getApplicationDocumentsDirectory();
+      _isarInstance = await Isar.open(
+        [NotificationSettingModelSchema, EasterDateCalculatorSchema],
+        directory: dir.path,
+        name: AppConfig.databaseName,
+        inspector: true,
+      );
+    }
+    _logger.info('Database initialized');
   }
 
-Future<void> initializeEasterDates() async {
+  Future<void> initializeEasterDates() async {
     final easterDateManager = EasterDateManager(_isarInstance!);
     await easterDateManager.initializeEasterDates();
-     _logger.info('Easter dates initialized');
+    _logger.info('Easter dates initialized');
   }
-
 
   Future<void> initializeNotifications() async {
     try {

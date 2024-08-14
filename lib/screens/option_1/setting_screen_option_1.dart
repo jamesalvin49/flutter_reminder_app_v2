@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:reminder_app_v2/data/providers/notification_providers.dart';
 import 'package:reminder_app_v2/data/managers/simplified_notification_manager.dart';
 import 'package:reminder_app_v2/data/providers/reminder_settings_notifier.dart';
-import 'package:reminder_app_v2/utils/custom_exceptions.dart';
-
-
 
 class SettingsScreenOption1 extends ConsumerWidget {
   const SettingsScreenOption1({super.key});
@@ -33,7 +31,8 @@ class SettingsScreenOption1 extends ConsumerWidget {
     );
   }
 
-  Widget _buildTimePicker(BuildContext context, UserNotificationSettings settings, ReminderSettingsNotifier notifier) {
+  Widget _buildTimePicker(BuildContext context,
+      UserNotificationSettings settings, ReminderSettingsNotifier notifier) {
     return ListTile(
       title: const Text('Reminder Time for All Selected Events'),
       subtitle: Text(settings.reminderTime.format(context)),
@@ -50,7 +49,8 @@ class SettingsScreenOption1 extends ConsumerWidget {
     );
   }
 
-  Widget _buildEasterRemindersSection(UserNotificationSettings settings, ReminderSettingsNotifier notifier) {
+  Widget _buildEasterRemindersSection(
+      UserNotificationSettings settings, ReminderSettingsNotifier notifier) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -60,14 +60,14 @@ class SettingsScreenOption1 extends ConsumerWidget {
         ),
         const SizedBox(height: 8),
         ...EasterEventType.values.map((event) => CheckboxListTile(
-          title: Text(_getEasterEventTitle(event)),
-          value: settings.easterReminders[event] ?? false,
-          onChanged: (bool? value) {
-            if (value != null) {
-              notifier.setEasterReminder(event, value);
-            }
-          },
-        )),
+              title: Text(_getEasterEventTitle(event)),
+              value: settings.easterReminders[event] ?? false,
+              onChanged: (bool? value) {
+                if (value != null) {
+                  notifier.setEasterReminder(event, value);
+                }
+              },
+            )),
         const SizedBox(height: 16),
         SwitchListTile(
           title: const Text('Remind Every Year'),
@@ -81,7 +81,8 @@ class SettingsScreenOption1 extends ConsumerWidget {
     );
   }
 
-  Widget _buildAdditionalRemindersSection(BuildContext context, UserNotificationSettings settings, ReminderSettingsNotifier notifier) {
+  Widget _buildAdditionalRemindersSection(BuildContext context,
+      UserNotificationSettings settings, ReminderSettingsNotifier notifier) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -111,15 +112,32 @@ class SettingsScreenOption1 extends ConsumerWidget {
         if (settings.oneTimeReminderDate != null)
           ListTile(
             title: const Text('One-Time Reminder Date'),
-            subtitle: Text(settings.oneTimeReminderDate!.toLocal().toString().split(' ')[0]),
-            trailing: const Icon(Icons.calendar_today),
-            onTap: () => _selectDate(context, notifier),
+            subtitle: Text(settings.oneTimeReminderDate!
+                .toLocal()
+                .toString()
+                .split(' ')[0]),
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.clear),
+                  onPressed: () {
+                    notifier.setOneTimeReminder(null);
+                  },
+                ),
+                IconButton(
+                  icon: const Icon(Icons.calendar_today),
+                  onPressed: () => _selectDate(context, notifier),
+                ),
+              ],
+            ),
           ),
       ],
     );
   }
 
-  Widget _buildSaveButton(BuildContext context, ReminderSettingsNotifier notifier) {
+  Widget _buildSaveButton(
+      BuildContext context, ReminderSettingsNotifier notifier) {
     return ElevatedButton(
       child: const Text('Save Settings'),
       onPressed: () async {
@@ -137,7 +155,8 @@ class SettingsScreenOption1 extends ConsumerWidget {
     );
   }
 
-  void _selectDate(BuildContext context, ReminderSettingsNotifier notifier) async {
+  void _selectDate(
+      BuildContext context, ReminderSettingsNotifier notifier) async {
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: DateTime.now(),
@@ -166,4 +185,3 @@ class SettingsScreenOption1 extends ConsumerWidget {
     }
   }
 }
-

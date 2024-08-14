@@ -3,16 +3,25 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:isar/isar.dart';
 import 'package:reminder_app_v2/core/app_initializer.dart';
+import 'package:reminder_app_v2/core/service_locator.dart';
 import 'package:reminder_app_v2/data/managers/notification_controller.dart';
-import 'package:reminder_app_v2/screens/option_1/serring_screen_option_1.dart';
-
-
+import 'package:reminder_app_v2/screens/option_1/setting_screen_option_1.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  final appInitializer = AppInitializer();
+  
+  await setupServiceLocator();
+
+  final appInitializer = getIt<AppInitializer>();
   await appInitializer.initialize();
+
+  // Get the Isar instance from AppInitializer
+  final Isar isar = await appInitializer.getIsarInstance();
+
+  // Register the remaining dependencies
+  await registerDependencies(isar);
 
   runApp(
     const ProviderScope(
@@ -38,4 +47,3 @@ class MyApp extends ConsumerWidget {
     );
   }
 }
-

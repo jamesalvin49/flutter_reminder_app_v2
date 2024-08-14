@@ -1,14 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:reminder_app_v2/core/service_locator.dart';
 import 'package:reminder_app_v2/data/managers/simplified_notification_manager.dart';
 import 'package:reminder_app_v2/data/providers/notification_providers.dart';
 import 'package:reminder_app_v2/utils/custom_exceptions.dart';
 
 class ReminderSettingsNotifier extends StateNotifier<UserNotificationSettings> {
-  final SimplifiedNotificationManager _manager;
+  final SimplifiedNotificationManager _manager =
+      getIt<SimplifiedNotificationManager>();
 
-  ReminderSettingsNotifier(this._manager)
-      : super(UserNotificationSettings.initial());
+  ReminderSettingsNotifier() : super(UserNotificationSettings.initial()) {
+    loadInitialSettings();
+  }
+
+  Future<void> loadInitialSettings() async {
+    try {
+      final settings = await _manager.getSettings();
+      state = settings;
+    } catch (e) {
+      // If there's an error loading settings, we'll keep the initial state
+      // You might want to log this error or handle it in some way
+      print('Error loading initial settings: $e');
+    }
+  }
 
   void setReminderTime(TimeOfDay time) {
     state = state.copyWith(reminderTime: time);
@@ -41,15 +55,7 @@ class ReminderSettingsNotifier extends StateNotifier<UserNotificationSettings> {
     try {
       await _manager.updateSettings(state);
     } catch (e) {
-      throw NotifierException(
-          'Error saving settings: $e');
+      throw NotifierException('Error saving settings: $e');
     }
   }
 }
-
-final reminderSettingsProvider =
-    StateNotifierProvider<ReminderSettingsNotifier, UserNotificationSettings>(
-        (ref) {
-  final manager = ref.watch(simplifiedNotificationManagerProvider);
-  return ReminderSettingsNotifier(manager);
-});

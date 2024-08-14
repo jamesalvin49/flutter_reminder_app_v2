@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:logging/logging.dart';
+import 'package:reminder_app_v2/core/service_locator.dart';
 import 'package:reminder_app_v2/data/managers/local_notification_manager.dart';
 import 'package:reminder_app_v2/data/models/easter_date_calculator.dart';
 import 'package:reminder_app_v2/data/models/notification_settings_model.dart';
@@ -14,7 +15,9 @@ class NotificationService {
   final Logger _logger = Logger('NotificationService');
 
   /// Creates a new instance of [NotificationService].
-  NotificationService(this._repository, this._notificationManager);
+  NotificationService()
+      : _repository = getIt<NotificationRepository>(),
+        _notificationManager = getIt<LocalNotificationManager>();
 
   /// Schedules a notification based on the provided [NotificationSettingModel].
   Future<void> scheduleNotification(NotificationSettingModel setting) async {

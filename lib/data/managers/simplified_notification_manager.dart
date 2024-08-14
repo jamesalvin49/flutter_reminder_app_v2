@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:logging/logging.dart';
+import 'package:reminder_app_v2/core/service_locator.dart';
 import 'package:reminder_app_v2/data/models/notification_settings_model.dart';
 import 'package:reminder_app_v2/data/repositories/notification_repository.dart';
 import 'package:reminder_app_v2/data/services/notification_service.dart';
@@ -9,7 +10,9 @@ class SimplifiedNotificationManager {
   final NotificationRepository _repository;
   final Logger _logger = Logger('SimplifiedNotificationManager');
 
-  SimplifiedNotificationManager(this._notificationService, this._repository);
+  SimplifiedNotificationManager()
+      : _notificationService = getIt<NotificationService>(),
+        _repository = getIt<NotificationRepository>();
 
   Future<void> updateSettings(UserNotificationSettings settings) async {
     try {
@@ -110,6 +113,68 @@ class SimplifiedNotificationManager {
     }
   }
 
+  Future<UserNotificationSettings> getSettings() async {
+    try {
+      final activeSettings = await _repository.getActiveNotificationSettings();
+      return _convertToUserNotificationSettings(activeSettings);
+    } catch (e) {
+      _logger.severe('Error getting settings', e);
+      // Return default settings if there's an error
+      return UserNotificationSettings.initial();
+    }
+  }
+
+  UserNotificationSettings _convertToUserNotificationSettings(
+      List<NotificationSettingModel> models) {
+    // Initialize with default values
+    TimeOfDay reminderTime = const TimeOfDay(hour: 9, minute: 0);
+    bool isLifetimeReminder = false;
+    Map<EasterEventType, bool> easterReminders = {
+      for (var event in EasterEventType.values) event: false
+    };
+    bool hasDailyReminder = false;
+    DateTime? oneTimeReminderDate;
+
+    for (var model in models) {
+      // Set reminder time from the first model (assuming it's the same for all)
+      if (reminderTime == const TimeOfDay(hour: 9, minute: 0)) {
+        reminderTime = TimeOfDay(hour: model.hour, minute: model.minute);
+      }
+
+      // Set lifetime reminder if any model has it
+      if (model.recurrenceType == RecurrenceType.yearly) {
+        isLifetimeReminder = true;
+      }
+
+      // Set Easter reminders
+      if (model.isEasterRelated) {
+        final easterEvent = _mapNotificationTypeToEasterEvent(model.type);
+        if (easterEvent != null) {
+          easterReminders[easterEvent] = true;
+        }
+      }
+
+      // Set daily reminder
+      if (model.type == NotificationType.recurring &&
+          model.recurrenceType == RecurrenceType.daily) {
+        hasDailyReminder = true;
+      }
+
+      // Set one-time reminder
+      if (model.type == NotificationType.oneTime) {
+        oneTimeReminderDate = model.dateTime;
+      }
+    }
+
+    return UserNotificationSettings(
+      reminderTime: reminderTime,
+      isLifetimeReminder: isLifetimeReminder,
+      easterReminders: easterReminders,
+      hasDailyReminder: hasDailyReminder,
+      oneTimeReminderDate: oneTimeReminderDate,
+    );
+  }
+  
   NotificationType _mapEasterEventToNotificationType(EasterEventType event) {
     switch (event) {
       case EasterEventType.ashWednesday:
@@ -124,6 +189,25 @@ class SimplifiedNotificationManager {
         return NotificationType.holySaturday;
       case EasterEventType.easterSunday:
         return NotificationType.easterSunday;
+    }
+  }
+
+  EasterEventType? _mapNotificationTypeToEasterEvent(NotificationType type) {
+    switch (type) {
+      case NotificationType.ashWednesday:
+        return EasterEventType.ashWednesday;
+      case NotificationType.palmSunday:
+        return EasterEventType.palmSunday;
+      case NotificationType.holyThursday:
+        return EasterEventType.holyThursday;
+      case NotificationType.goodFriday:
+        return EasterEventType.goodFriday;
+      case NotificationType.holySaturday:
+        return EasterEventType.holySaturday;
+      case NotificationType.easterSunday:
+        return EasterEventType.easterSunday;
+      default:
+        return null;
     }
   }
 }
