@@ -88,8 +88,7 @@ class NotificationSettingModel {
     this.recurrenceCount,
     this.recurrenceEndDate,
     this.isEasterRelated = false,
-    this.isEnabled = true,
-    this.id = 0,
+    this.isEnabled = true
   }) {
     _validateFields();
     _logger.info('Created new NotificationSetting: $type');

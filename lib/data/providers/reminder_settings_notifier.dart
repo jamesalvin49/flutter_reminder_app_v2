@@ -43,12 +43,30 @@ class ReminderSettingsNotifier extends StateNotifier<UserNotificationSettings> {
     state = state.copyWith(hasDailyReminder: value);
   }
 
-  void setOneTimeReminder(DateTime? date) {
-    if (date != null && date.isAfter(DateTime.now())) {
+  String? setOneTimeReminder(DateTime? date) {
+    if (date != null) {
+      final now = DateTime.now();
+      final reminderDateTime = DateTime(
+        date.year,
+        date.month,
+        date.day,
+        state.reminderTime.hour,
+        state.reminderTime.minute,
+      );
+
+      if (reminderDateTime.isBefore(now)) {
+        return "Cannot set a reminder for a past date and time.";
+      }
+
       state = state.copyWith(oneTimeReminderDate: date);
     } else {
-      state = state.copyWith(oneTimeReminderDate: null);
+      state = state.copyWith(
+        oneTimeReminderDate: null,
+        clearOneTimeReminderDate: true, 
+      );
     }
+
+    return null; // No error
   }
 
   Future<void> saveSettings() async {

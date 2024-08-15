@@ -33,12 +33,30 @@ class NotificationRepository {
   Future<int> addNotificationSetting(NotificationSettingModel setting) async {
     try {
       return await _isar.writeTxn(() async {
-        return await _isar.notificationSettingModels.put(setting);
+        return await _isar.notificationSettingModels
+            .put(setting); // put() will insert or update
       });
     } catch (e) {
       _logger.severe('Error adding notification setting', e);
       throw DatabaseException(
           'Failed to add notification setting: ${e.toString()}');
+    }
+  }
+  Future<void> cleanupPassedOneTimeReminders() async {
+    try {
+      final now = DateTime.now();
+      await _isar.writeTxn(() async {
+        await _isar.notificationSettingModels
+            .filter()
+            .recurrenceTypeEqualTo(RecurrenceType.none)
+            .and()
+            .dateTimeLessThan(now)
+            .deleteAll();
+      });
+    } catch (e) {
+      _logger.severe('Error cleaning up passed one-time reminders', e);
+      throw DatabaseException(
+          'Failed to clean up passed one-time reminders: ${e.toString()}');
     }
   }
 
@@ -74,6 +92,7 @@ class NotificationRepository {
   /// Deletes a notification setting from the database.
   ///
   /// Returns true if the deletion was successful, false otherwise.
+
   Future<bool> deleteNotificationSetting(int id) async {
     try {
       return await _isar.writeTxn(() async {
@@ -98,11 +117,18 @@ class NotificationRepository {
   }
 
   /// Retrieves all active notification settings from the database.
-  Future<List<NotificationSettingModel>> getActiveNotificationSettings() async {
+Future<List<NotificationSettingModel>> getActiveNotificationSettings() async {
     try {
+      final now = DateTime.now();
       return await _isar.notificationSettingModels
           .filter()
           .isEnabledEqualTo(true)
+          .and()
+          .group((q) => q
+              .not()
+              .recurrenceTypeEqualTo(RecurrenceType.none)
+              .or()
+              .dateTimeGreaterThan(now))
           .findAll();
     } catch (e) {
       _logger.severe('Error getting active notification settings', e);
@@ -110,7 +136,6 @@ class NotificationRepository {
           'Failed to get active notification settings: ${e.toString()}');
     }
   }
-
   // EasterDateCalculator CRUD operations
 
   /// Adds a new Easter date calculator entry to the database.

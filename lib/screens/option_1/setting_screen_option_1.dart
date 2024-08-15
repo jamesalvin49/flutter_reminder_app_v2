@@ -26,6 +26,11 @@ class SettingsScreenOption1 extends ConsumerWidget {
           _buildAdditionalRemindersSection(context, settings, notifier),
           const SizedBox(height: 24),
           _buildSaveButton(context, notifier),
+          const SizedBox(height: 24),
+          const Text(
+            'Note: The reminder time set above applies to all reminders, including one-time reminders.',
+            style: TextStyle(fontStyle: FontStyle.italic),
+          ),
         ],
       ),
     );
@@ -34,7 +39,7 @@ class SettingsScreenOption1 extends ConsumerWidget {
   Widget _buildTimePicker(BuildContext context,
       UserNotificationSettings settings, ReminderSettingsNotifier notifier) {
     return ListTile(
-      title: const Text('Reminder Time for All Selected Events'),
+      title: const Text('Reminder Time (applies to all reminders)'),
       subtitle: Text(settings.reminderTime.format(context)),
       trailing: const Icon(Icons.access_time),
       onTap: () async {
@@ -109,13 +114,15 @@ class SettingsScreenOption1 extends ConsumerWidget {
             }
           },
         ),
-        if (settings.oneTimeReminderDate != null)
+        if (settings.oneTimeReminderDate != null && _combineDateTime(
+                    settings.oneTimeReminderDate!, settings.reminderTime)
+                .isAfter(DateTime.now()))
           ListTile(
-            title: const Text('One-Time Reminder Date'),
-            subtitle: Text(settings.oneTimeReminderDate!
-                .toLocal()
-                .toString()
-                .split(' ')[0]),
+            title: const Text('One-Time Reminder'),
+            subtitle: Text(
+              '${_formatDate(settings.oneTimeReminderDate!)} at ${settings.reminderTime.format(context)}',
+              style: const TextStyle(fontSize: 16),
+            ),
             trailing: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -134,6 +141,52 @@ class SettingsScreenOption1 extends ConsumerWidget {
           ),
       ],
     );
+  }
+
+  DateTime _combineDateTime(DateTime date, TimeOfDay time) {
+    return DateTime(date.year, date.month, date.day, time.hour, time.minute);
+  }
+
+  // Add this method to your SettingsScreen class
+  String _formatDate(DateTime date) {
+    return '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}';
+  }
+
+  // Update or add this method in your SettingsScreen class
+  void _editOneTimeReminder(
+      BuildContext context,
+      ReminderSettingsNotifier notifier,
+      UserNotificationSettings settings) async {
+    final DateTime? pickedDate = await showDatePicker(
+      context: context,
+      initialDate: settings.oneTimeReminderDate ?? DateTime.now(),
+      firstDate: DateTime.now(),
+      lastDate: DateTime.now().add(const Duration(days: 365)),
+    );
+
+    if (pickedDate != null) {
+      final TimeOfDay? pickedTime = await showTimePicker(
+        context: context,
+        initialTime: settings.reminderTime,
+      );
+
+      if (pickedTime != null) {
+        final DateTime newDateTime = DateTime(
+          pickedDate.year,
+          pickedDate.month,
+          pickedDate.day,
+          pickedTime.hour,
+          pickedTime.minute,
+        );
+
+        final String? error = notifier.setOneTimeReminder(newDateTime);
+        if (error != null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(error)),
+          );
+        }
+      }
+    }
   }
 
   Widget _buildSaveButton(
@@ -157,14 +210,34 @@ class SettingsScreenOption1 extends ConsumerWidget {
 
   void _selectDate(
       BuildContext context, ReminderSettingsNotifier notifier) async {
+    final currentSettings = notifier.state;
+    final DateTime initialDate =
+        currentSettings.oneTimeReminderDate ?? DateTime.now();
+
     final DateTime? picked = await showDatePicker(
       context: context,
-      initialDate: DateTime.now(),
+      initialDate: initialDate,
       firstDate: DateTime.now(),
       lastDate: DateTime.now().add(const Duration(days: 365)),
     );
+
     if (picked != null) {
-      notifier.setOneTimeReminder(picked);
+      /*// Combine the picked date with the current reminder time
+      final DateTime newDateTime = DateTime(
+        picked.year,
+        picked.month,
+        picked.day,
+        currentSettings.reminderTime.hour,
+        currentSettings.reminderTime.minute,
+      );
+      */
+
+      final String? error = notifier.setOneTimeReminder(picked);
+      if (error != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(error)),
+        );
+      }
     }
   }
 

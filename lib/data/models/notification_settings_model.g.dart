@@ -193,7 +193,6 @@ NotificationSettingModel _notificationSettingModelDeserialize(
     dateTime: reader.readDateTime(offsets[0]),
     dayOfMonth: reader.readLongOrNull(offsets[1]),
     hour: reader.readLongOrNull(offsets[2]) ?? AppConfig.defaultReminderHour,
-    id: id,
     isEasterRelated: reader.readBoolOrNull(offsets[3]) ?? false,
     isEnabled: reader.readBoolOrNull(offsets[4]) ?? true,
     minute:
@@ -218,6 +217,7 @@ NotificationSettingModel _notificationSettingModelDeserialize(
     weekOfMonth: reader.readLongOrNull(offsets[14]),
     weekdays: reader.readLongList(offsets[15]),
   );
+  object.id = id;
   return object;
 }
 

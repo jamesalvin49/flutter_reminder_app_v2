@@ -101,6 +101,7 @@ class SimplifiedNotificationManager {
       List<NotificationSettingModel> existingSettings) async {
     for (var setting in existingSettings) {
       await _notificationService.cancelNotification(setting.id);
+      await _repository.deleteNotificationSetting(setting.id);
       _logger.fine('Cancelled notification: ${setting.id}');
     }
   }
@@ -115,6 +116,7 @@ class SimplifiedNotificationManager {
 
   Future<UserNotificationSettings> getSettings() async {
     try {
+      await _repository.cleanupPassedOneTimeReminders();
       final activeSettings = await _repository.getActiveNotificationSettings();
       return _convertToUserNotificationSettings(activeSettings);
     } catch (e) {
@@ -164,6 +166,7 @@ class SimplifiedNotificationManager {
       if (model.type == NotificationType.oneTime) {
         oneTimeReminderDate = model.dateTime;
       }
+      
     }
 
     return UserNotificationSettings(
@@ -174,7 +177,7 @@ class SimplifiedNotificationManager {
       oneTimeReminderDate: oneTimeReminderDate,
     );
   }
-  
+
   NotificationType _mapEasterEventToNotificationType(EasterEventType event) {
     switch (event) {
       case EasterEventType.ashWednesday:
@@ -249,13 +252,16 @@ class UserNotificationSettings {
     Map<EasterEventType, bool>? easterReminders,
     bool? hasDailyReminder,
     DateTime? oneTimeReminderDate,
+    bool clearOneTimeReminderDate = false,
   }) {
     return UserNotificationSettings(
       reminderTime: reminderTime ?? this.reminderTime,
       isLifetimeReminder: isLifetimeReminder ?? this.isLifetimeReminder,
       easterReminders: easterReminders ?? this.easterReminders,
       hasDailyReminder: hasDailyReminder ?? this.hasDailyReminder,
-      oneTimeReminderDate: oneTimeReminderDate ?? this.oneTimeReminderDate,
+      oneTimeReminderDate: clearOneTimeReminderDate
+          ? null
+          : (oneTimeReminderDate ?? this.oneTimeReminderDate),
     );
   }
 }
