@@ -62,7 +62,7 @@ class ReminderSettingsNotifier extends StateNotifier<UserNotificationSettings> {
     } else {
       state = state.copyWith(
         oneTimeReminderDate: null,
-        clearOneTimeReminderDate: true, 
+        clearOneTimeReminderDate: true,
       );
     }
 
@@ -74,6 +74,14 @@ class ReminderSettingsNotifier extends StateNotifier<UserNotificationSettings> {
       await _manager.updateSettings(state);
     } catch (e) {
       throw NotifierException('Error saving settings: $e');
+    }
+  }
+
+  Future<void> testImmediateNotification() async {
+    try {
+      await _manager.testImmediateNotification();
+    } catch (e) {
+      throw NotifierException('Error creating test notification: $e');
     }
   }
 }

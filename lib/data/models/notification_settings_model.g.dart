@@ -59,46 +59,51 @@ const NotificationSettingModelSchema = CollectionSchema(
       type: IsarType.byte,
       enumMap: _NotificationSettingModelmonthlyRecurrenceTypeEnumValueMap,
     ),
-    r'recurrenceCount': PropertySchema(
+    r'notificationID': PropertySchema(
       id: 8,
+      name: r'notificationID',
+      type: IsarType.long,
+    ),
+    r'recurrenceCount': PropertySchema(
+      id: 9,
       name: r'recurrenceCount',
       type: IsarType.long,
     ),
     r'recurrenceEnd': PropertySchema(
-      id: 9,
+      id: 10,
       name: r'recurrenceEnd',
       type: IsarType.byte,
       enumMap: _NotificationSettingModelrecurrenceEndEnumValueMap,
     ),
     r'recurrenceEndDate': PropertySchema(
-      id: 10,
+      id: 11,
       name: r'recurrenceEndDate',
       type: IsarType.dateTime,
     ),
     r'recurrenceInterval': PropertySchema(
-      id: 11,
+      id: 12,
       name: r'recurrenceInterval',
       type: IsarType.long,
     ),
     r'recurrenceType': PropertySchema(
-      id: 12,
+      id: 13,
       name: r'recurrenceType',
       type: IsarType.byte,
       enumMap: _NotificationSettingModelrecurrenceTypeEnumValueMap,
     ),
     r'type': PropertySchema(
-      id: 13,
+      id: 14,
       name: r'type',
       type: IsarType.byte,
       enumMap: _NotificationSettingModeltypeEnumValueMap,
     ),
     r'weekOfMonth': PropertySchema(
-      id: 14,
+      id: 15,
       name: r'weekOfMonth',
       type: IsarType.long,
     ),
     r'weekdays': PropertySchema(
-      id: 15,
+      id: 16,
       name: r'weekdays',
       type: IsarType.longList,
     )
@@ -109,6 +114,19 @@ const NotificationSettingModelSchema = CollectionSchema(
   deserializeProp: _notificationSettingModelDeserializeProp,
   idName: r'id',
   indexes: {
+    r'notificationID': IndexSchema(
+      id: -7217136984975172681,
+      name: r'notificationID',
+      unique: false,
+      replace: false,
+      properties: [
+        IndexPropertySchema(
+          name: r'notificationID',
+          type: IndexType.value,
+          caseSensitive: false,
+        )
+      ],
+    ),
     r'type': IndexSchema(
       id: 5117122708147080838,
       name: r'type',
@@ -173,14 +191,15 @@ void _notificationSettingModelSerialize(
   writer.writeLong(offsets[5], object.minute);
   writer.writeLong(offsets[6], object.monthOfYear);
   writer.writeByte(offsets[7], object.monthlyRecurrenceType.index);
-  writer.writeLong(offsets[8], object.recurrenceCount);
-  writer.writeByte(offsets[9], object.recurrenceEnd.index);
-  writer.writeDateTime(offsets[10], object.recurrenceEndDate);
-  writer.writeLong(offsets[11], object.recurrenceInterval);
-  writer.writeByte(offsets[12], object.recurrenceType.index);
-  writer.writeByte(offsets[13], object.type.index);
-  writer.writeLong(offsets[14], object.weekOfMonth);
-  writer.writeLongList(offsets[15], object.weekdays);
+  writer.writeLong(offsets[8], object.notificationID);
+  writer.writeLong(offsets[9], object.recurrenceCount);
+  writer.writeByte(offsets[10], object.recurrenceEnd.index);
+  writer.writeDateTime(offsets[11], object.recurrenceEndDate);
+  writer.writeLong(offsets[12], object.recurrenceInterval);
+  writer.writeByte(offsets[13], object.recurrenceType.index);
+  writer.writeByte(offsets[14], object.type.index);
+  writer.writeLong(offsets[15], object.weekOfMonth);
+  writer.writeLongList(offsets[16], object.weekdays);
 }
 
 NotificationSettingModel _notificationSettingModelDeserialize(
@@ -202,22 +221,23 @@ NotificationSettingModel _notificationSettingModelDeserialize(
         _NotificationSettingModelmonthlyRecurrenceTypeValueEnumMap[
                 reader.readByteOrNull(offsets[7])] ??
             MonthlyRecurrenceType.dayOfMonth,
-    recurrenceCount: reader.readLongOrNull(offsets[8]),
+    recurrenceCount: reader.readLongOrNull(offsets[9]),
     recurrenceEnd: _NotificationSettingModelrecurrenceEndValueEnumMap[
-            reader.readByteOrNull(offsets[9])] ??
+            reader.readByteOrNull(offsets[10])] ??
         RecurrenceEnd.forever,
-    recurrenceEndDate: reader.readDateTimeOrNull(offsets[10]),
-    recurrenceInterval: reader.readLongOrNull(offsets[11]) ?? 1,
+    recurrenceEndDate: reader.readDateTimeOrNull(offsets[11]),
+    recurrenceInterval: reader.readLongOrNull(offsets[12]) ?? 1,
     recurrenceType: _NotificationSettingModelrecurrenceTypeValueEnumMap[
-            reader.readByteOrNull(offsets[12])] ??
+            reader.readByteOrNull(offsets[13])] ??
         RecurrenceType.none,
     type: _NotificationSettingModeltypeValueEnumMap[
-            reader.readByteOrNull(offsets[13])] ??
+            reader.readByteOrNull(offsets[14])] ??
         NotificationType.oneTime,
-    weekOfMonth: reader.readLongOrNull(offsets[14]),
-    weekdays: reader.readLongList(offsets[15]),
+    weekOfMonth: reader.readLongOrNull(offsets[15]),
+    weekdays: reader.readLongList(offsets[16]),
   );
   object.id = id;
+  object.notificationID = reader.readLong(offsets[8]);
   return object;
 }
 
@@ -249,26 +269,28 @@ P _notificationSettingModelDeserializeProp<P>(
               reader.readByteOrNull(offset)] ??
           MonthlyRecurrenceType.dayOfMonth) as P;
     case 8:
-      return (reader.readLongOrNull(offset)) as P;
+      return (reader.readLong(offset)) as P;
     case 9:
+      return (reader.readLongOrNull(offset)) as P;
+    case 10:
       return (_NotificationSettingModelrecurrenceEndValueEnumMap[
               reader.readByteOrNull(offset)] ??
           RecurrenceEnd.forever) as P;
-    case 10:
-      return (reader.readDateTimeOrNull(offset)) as P;
     case 11:
-      return (reader.readLongOrNull(offset) ?? 1) as P;
+      return (reader.readDateTimeOrNull(offset)) as P;
     case 12:
+      return (reader.readLongOrNull(offset) ?? 1) as P;
+    case 13:
       return (_NotificationSettingModelrecurrenceTypeValueEnumMap[
               reader.readByteOrNull(offset)] ??
           RecurrenceType.none) as P;
-    case 13:
+    case 14:
       return (_NotificationSettingModeltypeValueEnumMap[
               reader.readByteOrNull(offset)] ??
           NotificationType.oneTime) as P;
-    case 14:
-      return (reader.readLongOrNull(offset)) as P;
     case 15:
+      return (reader.readLongOrNull(offset)) as P;
+    case 16:
       return (reader.readLongList(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -358,6 +380,15 @@ extension NotificationSettingModelQueryWhereSort on QueryBuilder<
   }
 
   QueryBuilder<NotificationSettingModel, NotificationSettingModel, QAfterWhere>
+      anyNotificationID() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(
+        const IndexWhereClause.any(indexName: r'notificationID'),
+      );
+    });
+  }
+
+  QueryBuilder<NotificationSettingModel, NotificationSettingModel, QAfterWhere>
       anyType() {
     return QueryBuilder.apply(this, (query) {
       return query.addWhereClause(
@@ -441,6 +472,99 @@ extension NotificationSettingModelQueryWhere on QueryBuilder<
         lower: lowerId,
         includeLower: includeLower,
         upper: upperId,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<NotificationSettingModel, NotificationSettingModel,
+      QAfterWhereClause> notificationIDEqualTo(int notificationID) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IndexWhereClause.equalTo(
+        indexName: r'notificationID',
+        value: [notificationID],
+      ));
+    });
+  }
+
+  QueryBuilder<NotificationSettingModel, NotificationSettingModel,
+      QAfterWhereClause> notificationIDNotEqualTo(int notificationID) {
+    return QueryBuilder.apply(this, (query) {
+      if (query.whereSort == Sort.asc) {
+        return query
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'notificationID',
+              lower: [],
+              upper: [notificationID],
+              includeUpper: false,
+            ))
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'notificationID',
+              lower: [notificationID],
+              includeLower: false,
+              upper: [],
+            ));
+      } else {
+        return query
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'notificationID',
+              lower: [notificationID],
+              includeLower: false,
+              upper: [],
+            ))
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'notificationID',
+              lower: [],
+              upper: [notificationID],
+              includeUpper: false,
+            ));
+      }
+    });
+  }
+
+  QueryBuilder<NotificationSettingModel, NotificationSettingModel,
+      QAfterWhereClause> notificationIDGreaterThan(
+    int notificationID, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IndexWhereClause.between(
+        indexName: r'notificationID',
+        lower: [notificationID],
+        includeLower: include,
+        upper: [],
+      ));
+    });
+  }
+
+  QueryBuilder<NotificationSettingModel, NotificationSettingModel,
+      QAfterWhereClause> notificationIDLessThan(
+    int notificationID, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IndexWhereClause.between(
+        indexName: r'notificationID',
+        lower: [],
+        upper: [notificationID],
+        includeUpper: include,
+      ));
+    });
+  }
+
+  QueryBuilder<NotificationSettingModel, NotificationSettingModel,
+      QAfterWhereClause> notificationIDBetween(
+    int lowerNotificationID,
+    int upperNotificationID, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IndexWhereClause.between(
+        indexName: r'notificationID',
+        lower: [lowerNotificationID],
+        includeLower: includeLower,
+        upper: [upperNotificationID],
         includeUpper: includeUpper,
       ));
     });
@@ -1028,6 +1152,62 @@ extension NotificationSettingModelQueryFilter on QueryBuilder<
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.between(
         property: r'monthlyRecurrenceType',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<NotificationSettingModel, NotificationSettingModel,
+      QAfterFilterCondition> notificationIDEqualTo(int value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'notificationID',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<NotificationSettingModel, NotificationSettingModel,
+      QAfterFilterCondition> notificationIDGreaterThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'notificationID',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<NotificationSettingModel, NotificationSettingModel,
+      QAfterFilterCondition> notificationIDLessThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'notificationID',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<NotificationSettingModel, NotificationSettingModel,
+      QAfterFilterCondition> notificationIDBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'notificationID',
         lower: lower,
         includeLower: includeLower,
         upper: upper,
@@ -1767,6 +1947,20 @@ extension NotificationSettingModelQuerySortBy on QueryBuilder<
   }
 
   QueryBuilder<NotificationSettingModel, NotificationSettingModel, QAfterSortBy>
+      sortByNotificationID() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'notificationID', Sort.asc);
+    });
+  }
+
+  QueryBuilder<NotificationSettingModel, NotificationSettingModel, QAfterSortBy>
+      sortByNotificationIDDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'notificationID', Sort.desc);
+    });
+  }
+
+  QueryBuilder<NotificationSettingModel, NotificationSettingModel, QAfterSortBy>
       sortByRecurrenceCount() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'recurrenceCount', Sort.asc);
@@ -1994,6 +2188,20 @@ extension NotificationSettingModelQuerySortThenBy on QueryBuilder<
   }
 
   QueryBuilder<NotificationSettingModel, NotificationSettingModel, QAfterSortBy>
+      thenByNotificationID() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'notificationID', Sort.asc);
+    });
+  }
+
+  QueryBuilder<NotificationSettingModel, NotificationSettingModel, QAfterSortBy>
+      thenByNotificationIDDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'notificationID', Sort.desc);
+    });
+  }
+
+  QueryBuilder<NotificationSettingModel, NotificationSettingModel, QAfterSortBy>
       thenByRecurrenceCount() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'recurrenceCount', Sort.asc);
@@ -2151,6 +2359,13 @@ extension NotificationSettingModelQueryWhereDistinct on QueryBuilder<
   }
 
   QueryBuilder<NotificationSettingModel, NotificationSettingModel, QDistinct>
+      distinctByNotificationID() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'notificationID');
+    });
+  }
+
+  QueryBuilder<NotificationSettingModel, NotificationSettingModel, QDistinct>
       distinctByRecurrenceCount() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'recurrenceCount');
@@ -2267,6 +2482,13 @@ extension NotificationSettingModelQueryProperty on QueryBuilder<
       QQueryOperations> monthlyRecurrenceTypeProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'monthlyRecurrenceType');
+    });
+  }
+
+  QueryBuilder<NotificationSettingModel, int, QQueryOperations>
+      notificationIDProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'notificationID');
     });
   }
 

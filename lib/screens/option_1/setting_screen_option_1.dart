@@ -1,8 +1,12 @@
+import 'package:awesome_notifications/awesome_notifications.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:reminder_app_v2/core/notification_verifier.dart';
 import 'package:reminder_app_v2/data/providers/notification_providers.dart';
 import 'package:reminder_app_v2/data/managers/simplified_notification_manager.dart';
 import 'package:reminder_app_v2/data/providers/reminder_settings_notifier.dart';
+import 'package:intl/intl.dart';
 
 class SettingsScreenOption1 extends ConsumerWidget {
   const SettingsScreenOption1({super.key});
@@ -30,6 +34,13 @@ class SettingsScreenOption1 extends ConsumerWidget {
           const Text(
             'Note: The reminder time set above applies to all reminders, including one-time reminders.',
             style: TextStyle(fontStyle: FontStyle.italic),
+          ),
+          const SizedBox(height: 24),
+          if (kDebugMode) DebugOverlay(),
+          const SizedBox(height: 24),
+          ElevatedButton(
+            onPressed: notifier.testImmediateNotification,
+            child: Text('Test'),
           ),
         ],
       ),
@@ -114,7 +125,8 @@ class SettingsScreenOption1 extends ConsumerWidget {
             }
           },
         ),
-        if (settings.oneTimeReminderDate != null && _combineDateTime(
+        if (settings.oneTimeReminderDate != null &&
+            _combineDateTime(
                     settings.oneTimeReminderDate!, settings.reminderTime)
                 .isAfter(DateTime.now()))
           ListTile(
@@ -256,5 +268,99 @@ class SettingsScreenOption1 extends ConsumerWidget {
       case EasterEventType.easterSunday:
         return 'Easter Sunday';
     }
+  }
+}
+
+class DebugOverlay extends StatefulWidget {
+  @override
+  _DebugOverlayState createState() => _DebugOverlayState();
+}
+
+class _DebugOverlayState extends State<DebugOverlay> {
+  late Future<List<NotificationModel>> _notificationsFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _refreshNotifications();
+  }
+
+  void _refreshNotifications() {
+    setState(() {
+      _notificationsFuture = NotificationVerifier.getPendingNotifications();
+    });
+  }
+
+  String _formatSchedule(NotificationSchedule? schedule) {
+    if (schedule == null) return 'No schedule';
+    if (schedule is NotificationCalendar) {
+      final dateTime = DateTime(
+        schedule.year ?? DateTime.now().year,
+        schedule.month ?? 1,
+        schedule.day ?? 1,
+        schedule.hour ?? 0,
+        schedule.minute ?? 0,
+      );
+      return DateFormat('yyyy-MM-dd HH:mm').format(dateTime);
+    }
+    return 'Unknown schedule type';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: Colors.black.withOpacity(0.7),
+      padding: EdgeInsets.all(8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text('Pending Notifications',
+                  style: TextStyle(
+                      color: Colors.white, fontWeight: FontWeight.bold)),
+              ElevatedButton(
+                onPressed: _refreshNotifications,
+                child: Text('Refresh'),
+              ),
+            ],
+          ),
+          SizedBox(height: 8),
+          FutureBuilder<List<NotificationModel>>(
+            future: _notificationsFuture,
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return CircularProgressIndicator();
+              }
+              if (snapshot.hasError) {
+                return Text('Error: ${snapshot.error}',
+                    style: TextStyle(color: Colors.red));
+              }
+              if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                return Text('No pending notifications',
+                    style: TextStyle(color: Colors.white));
+              }
+              final notifications = snapshot.data!;
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Count: ${notifications.length}',
+                      style: TextStyle(color: Colors.white)),
+                  ...notifications.map((n) => Padding(
+                        padding: const EdgeInsets.only(top: 4.0),
+                        child: Text(
+                          'ID: ${n.content?.id}, Title: ${n.content?.title}\n'
+                          'Scheduled: ${_formatSchedule(n.schedule)}',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      )),
+                ],
+              );
+            },
+          ),
+        ],
+      ),
+    );
   }
 }

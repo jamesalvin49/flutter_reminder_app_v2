@@ -9,7 +9,7 @@ class LocalNotificationManager {
   final Logger _logger = Logger('LocalNotificationManager');
 
   /// Requests notification permissions from the user.
- Future<bool> requestPermissions() async {
+  Future<bool> requestPermissions() async {
     try {
       final isAllowed = await AwesomeNotifications().isNotificationAllowed();
       if (!isAllowed) {
@@ -19,7 +19,8 @@ class LocalNotificationManager {
       return isAllowed;
     } catch (e) {
       _logger.severe('Error requesting notification permissions', e);
-      throw NotificationException('Failed to request notification permissions: ${e.toString()}');
+      throw NotificationException(
+          'Failed to request notification permissions: ${e.toString()}');
     }
   }
 
@@ -29,6 +30,8 @@ class LocalNotificationManager {
     required String title,
     required String body,
     required DateTime scheduledDate,
+    required int hour,
+    required int minute,
     String? payload,
   }) async {
     try {
@@ -39,13 +42,27 @@ class LocalNotificationManager {
           title: title,
           body: body,
           payload: payload != null ? {'data': payload} : null,
+          notificationLayout: NotificationLayout.Default,
         ),
-        schedule: NotificationCalendar.fromDate(date: scheduledDate),
+        schedule: NotificationCalendar(
+          year: scheduledDate.year,
+          month: scheduledDate.month,
+          day: scheduledDate.day,
+          hour: hour,
+          minute: minute,
+          second: 0,
+          millisecond: 0,
+          repeats: false,
+          allowWhileIdle: true,
+          preciseAlarm: true,
+        ),
       );
-      _logger.info('One-time notification scheduled: ID $id for ${scheduledDate.toIso8601String()}');
+      _logger.info(
+          'One-time notification scheduled: ID $id for ${scheduledDate.toIso8601String()}');
     } catch (e) {
       _logger.severe('Error scheduling one-time notification', e);
-      throw NotificationException('Failed to schedule one-time notification: ${e.toString()}');
+      throw NotificationException(
+          'Failed to schedule one-time notification: ${e.toString()}');
     }
   }
 
@@ -72,7 +89,8 @@ class LocalNotificationManager {
           repeats: true,
         ),
       );
-      _logger.info('Daily notification scheduled: ID $id at ${time.format(await _getContext())}');
+      _logger.info(
+          'Daily notification scheduled: ID $id at ${time.format(await _getContext())}');
     } catch (e) {
       _logger.severe('Error scheduling daily notification', e);
       rethrow;
@@ -106,7 +124,8 @@ class LocalNotificationManager {
           ),
         );
       }
-      _logger.info('Weekly notification scheduled: ID $id at ${time.format(await _getContext())} on days ${weekdays.join(", ")}');
+      _logger.info(
+          'Weekly notification scheduled: ID $id at ${time.format(await _getContext())} on days ${weekdays.join(", ")}');
     } catch (e) {
       _logger.severe('Error scheduling weekly notification', e);
       rethrow;
@@ -138,7 +157,8 @@ class LocalNotificationManager {
           repeats: true,
         ),
       );
-      _logger.info('Monthly notification scheduled: ID $id on day $dayOfMonth at ${time.format(await _getContext())}');
+      _logger.info(
+          'Monthly notification scheduled: ID $id on day $dayOfMonth at ${time.format(await _getContext())}');
     } catch (e) {
       _logger.severe('Error scheduling monthly notification', e);
       rethrow;
@@ -170,7 +190,8 @@ class LocalNotificationManager {
           repeats: true,
         ),
       );
-      _logger.info('Yearly notification scheduled: ID $id on ${dateTime.toString()}');
+      _logger.info(
+          'Yearly notification scheduled: ID $id on ${dateTime.toString()}');
     } catch (e) {
       _logger.severe('Error scheduling yearly notification', e);
       rethrow;
@@ -198,7 +219,8 @@ class LocalNotificationManager {
         ),
         schedule: NotificationCalendar.fromDate(date: notificationDate),
       );
-      _logger.info('Easter-related notification scheduled: ID $id for ${notificationDate.toIso8601String()}');
+      _logger.info(
+          'Easter-related notification scheduled: ID $id for ${notificationDate.toIso8601String()}');
     } catch (e) {
       _logger.severe('Error scheduling Easter-related notification', e);
       rethrow;
@@ -212,7 +234,8 @@ class LocalNotificationManager {
       _logger.info('Notification cancelled: ID $id');
     } catch (e) {
       _logger.severe('Error cancelling notification', e);
-      throw NotificationException('Failed to cancel notification: ${e.toString()}');
+      throw NotificationException(
+          'Failed to cancel notification: ${e.toString()}');
     }
   }
 
@@ -223,7 +246,8 @@ class LocalNotificationManager {
       _logger.info('All notifications cancelled');
     } catch (e) {
       _logger.severe('Error cancelling all notifications', e);
-      throw NotificationException('Failed to cancel all notifications: ${e.toString()}');
+      throw NotificationException(
+          'Failed to cancel all notifications: ${e.toString()}');
     }
   }
 
@@ -232,7 +256,8 @@ class LocalNotificationManager {
     try {
       final List<NotificationModel> scheduledNotifications =
           await AwesomeNotifications().listScheduledNotifications();
-      bool isScheduled = scheduledNotifications.any((notification) => notification.content?.id == id);
+      bool isScheduled = scheduledNotifications
+          .any((notification) => notification.content?.id == id);
       _logger.info('Checked if notification ID $id is scheduled: $isScheduled');
       return isScheduled;
     } catch (e) {
@@ -242,23 +267,45 @@ class LocalNotificationManager {
   }
 
   /// Sets up notification action listeners.
-    void setNotificationListeners({
-      required Future<void> Function(ReceivedNotification) onNotificationCreated,
-      required Future<void> Function(ReceivedNotification) onNotificationDisplayed,
-      required Future<void> Function(ReceivedAction) onDismissActionReceived,
-      required Future<void> Function(ReceivedAction) onActionReceived,
-    }) {
-      AwesomeNotifications().setListeners(
-        onNotificationCreatedMethod: onNotificationCreated,
-        onNotificationDisplayedMethod: onNotificationDisplayed,
-        onDismissActionReceivedMethod: onDismissActionReceived,
-        onActionReceivedMethod: onActionReceived,
-      );
-    }
+  void setNotificationListeners({
+    required Future<void> Function(ReceivedNotification) onNotificationCreated,
+    required Future<void> Function(ReceivedNotification)
+        onNotificationDisplayed,
+    required Future<void> Function(ReceivedAction) onDismissActionReceived,
+    required Future<void> Function(ReceivedAction) onActionReceived,
+  }) {
+    AwesomeNotifications().setListeners(
+      onNotificationCreatedMethod: onNotificationCreated,
+      onNotificationDisplayedMethod: onNotificationDisplayed,
+      onDismissActionReceivedMethod: onDismissActionReceived,
+      onActionReceivedMethod: onActionReceived,
+    );
+  }
 
   /// Helper method to get the current context.
   Future<BuildContext> _getContext() async {
     BuildContext context = WidgetsBinding.instance.rootElement!;
     return context;
+  }
+
+  Future<void> testImmediateNotification() async {
+    try {
+      bool success = await AwesomeNotifications().createNotification(
+        
+        content: NotificationContent(
+          id: 0,
+          channelKey: AppConfig.oneTimeChannel,
+          title: 'Test Notification',
+          body: 'This is a test notification',
+        ),
+      );
+      if (success) {
+        _logger.info('Test notification created successfully');
+      } else {
+        _logger.warning('Failed to create test notification');
+      }
+    } catch (e) {
+      _logger.severe('Error creating test notification', e);
+    }
   }
 }

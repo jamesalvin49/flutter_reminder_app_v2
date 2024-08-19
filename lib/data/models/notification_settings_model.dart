@@ -14,6 +14,10 @@ class NotificationSettingModel {
   /// Unique identifier for the notification setting.
   Id id = Isar.autoIncrement;
 
+  // New field for Awesome Notifications
+  @Index()
+  late int notificationID;
+
   /// The type of notification (e.g., one-time, recurring, Easter-related).
   @enumerated
   @Index()
@@ -90,6 +94,7 @@ class NotificationSettingModel {
     this.isEasterRelated = false,
     this.isEnabled = true
   }) {
+     notificationID = _generateNotificationID();
     _validateFields();
     _logger.info('Created new NotificationSetting: $type');
   }
@@ -126,6 +131,14 @@ class NotificationSettingModel {
       throw ArgumentError('minute must be between 0 and 59');
     }
     _logger.fine('Validated fields for NotificationSetting: $type');
+  }
+
+  int _generateNotificationID() {
+    // Generate a unique ID based on current timestamp
+    int timestamp = DateTime.now().millisecondsSinceEpoch;
+    
+    // Ensure it fits within 32-bit integer range
+    return timestamp % 0x7FFFFFFF; // 0x7FFFFFFF is the max positive 32-bit integer
   }
 
   // Convert stored hour and minute to TimeOfDay

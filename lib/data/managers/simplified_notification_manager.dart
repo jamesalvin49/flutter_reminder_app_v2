@@ -126,6 +126,10 @@ class SimplifiedNotificationManager {
     }
   }
 
+  Future<void> testImmediateNotification() async {
+    await _notificationService.testImmediateNotification();
+  }
+
   UserNotificationSettings _convertToUserNotificationSettings(
       List<NotificationSettingModel> models) {
     // Initialize with default values

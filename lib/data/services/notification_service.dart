@@ -49,7 +49,7 @@ class NotificationService {
               'Invalid notification type: ${setting.type}');
       }
 
-      _logger.info('Scheduled notification ${setting.id}');
+      _logger.info('Scheduled notification ${setting.notificationID}');
     } catch (e) {
       _logger.severe('Error scheduling notification', e);
       throw NotificationException(
@@ -60,10 +60,12 @@ class NotificationService {
   Future<void> _scheduleOneTimeNotification(
       NotificationSettingModel setting) async {
     await _notificationManager.createOneTimeNotification(
-      id: setting.id,
+      id: setting.notificationID,
       title: _getNotificationTitle(setting),
       body: _getNotificationBody(setting),
       scheduledDate: setting.dateTime,
+      hour: setting.hour,
+      minute: setting.minute,
       payload: setting.id.toString(),
     );
   }
@@ -73,7 +75,7 @@ class NotificationService {
     switch (setting.recurrenceType) {
       case RecurrenceType.daily:
         await _notificationManager.createDailyNotification(
-          id: setting.id,
+          id: setting.notificationID,
           title: _getNotificationTitle(setting),
           body: _getNotificationBody(setting),
           time: TimeOfDay(hour: setting.hour, minute: setting.minute),
@@ -82,7 +84,7 @@ class NotificationService {
         break;
       case RecurrenceType.weekly:
         await _notificationManager.createWeeklyNotification(
-          id: setting.id,
+          id: setting.notificationID,
           title: _getNotificationTitle(setting),
           body: _getNotificationBody(setting),
           time: TimeOfDay(hour: setting.hour, minute: setting.minute),
@@ -92,7 +94,7 @@ class NotificationService {
         break;
       case RecurrenceType.monthly:
         await _notificationManager.createMonthlyNotification(
-          id: setting.id,
+          id: setting.notificationID,
           title: _getNotificationTitle(setting),
           body: _getNotificationBody(setting),
           time: TimeOfDay(hour: setting.hour, minute: setting.minute),
@@ -102,7 +104,7 @@ class NotificationService {
         break;
       case RecurrenceType.yearly:
         await _notificationManager.createYearlyNotification(
-          id: setting.id,
+          id: setting.notificationID,
           title: _getNotificationTitle(setting),
           body: _getNotificationBody(setting),
           dateTime: DateTime(
@@ -203,7 +205,7 @@ class NotificationService {
     // Only schedule if the date is in the future
     if (notificationDate.isAfter(DateTime.now())) {
       await _notificationManager.createEasterNotification(
-        id: setting.id + daysOffset, // Unique ID for each day
+        id: setting.notificationID, //+ daysOffset, // Unique ID for each day
         title: _getNotificationTitle(setting),
         body: _getNotificationBody(setting),
         easterDate: easterDate.easterSunday,
@@ -282,5 +284,9 @@ class NotificationService {
   String _getNotificationBody(NotificationSettingModel setting) {
     // Implement logic to generate appropriate body text
     return 'Your reminder for ${setting.type.toString().split('.').last}';
+  }
+
+  Future<void> testImmediateNotification() async {
+    await _notificationManager.testImmediateNotification();
   }
 }
